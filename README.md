@@ -4,9 +4,9 @@
   <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&pause=1000&color=00FFAA&center=true&vCenter=true&width=435&lines=Ankit+Kumar;Building+real-world+web+experiences;Code.+Creativity.+Consistency." alt="Typing SVG" />
 </p>
 <p align="center">
-  <img src="<img width="906" height="627" alt="image" src="https://github.com/user-attachments/assets/471d4dac-269e-4890-8180-cfe1e03bf9a0" />
-" alt="Hero Section" width="800">
+  <img width="1791" height="777" alt="image" src="https://github.com/user-attachments/assets/ca89e3b6-1640-41c7-966d-e0d7b7e95072" />
 </p>
+
 <p align="center">
   <a href="https://your-netlify-link-here.netlify.app/">
     <img src="https://img.shields.io/badge/LIVE_DEMO-00FFAA?style=for-the-badge&logo=netlify&logoColor=black" alt="Live Demo" />
