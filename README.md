@@ -4,7 +4,8 @@
   <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&pause=1000&color=00FFAA&center=true&vCenter=true&width=435&lines=Ankit+Kumar;Building+real-world+web+experiences;Code.+Creativity.+Consistency." alt="Typing SVG" />
 </p>
 <p align="center">
-  <img src="https://via.placeholder.com/800x450/0a0a0a/00ffaa?text=Portfolio+Hero+Section+Screenshot" alt="Hero Section" width="800">
+  <img src="<img width="906" height="627" alt="image" src="https://github.com/user-attachments/assets/471d4dac-269e-4890-8180-cfe1e03bf9a0" />
+" alt="Hero Section" width="800">
 </p>
 <p align="center">
   <a href="https://your-netlify-link-here.netlify.app/">
