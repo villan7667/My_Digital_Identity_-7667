@@ -138,13 +138,65 @@ for (let i = 0; i < 80; i++) {
   requestAnimationFrame(animDots);
 })();
 
-// music 
+// ================= MUSIC WITH PERSISTENCE =================
 const music = document.getElementById("bg-music");
 music.volume = 0.3;
 
-document.addEventListener("DOMContentLoaded", function() {
-  music.play().catch(() => console.log("Autoplay blocked by browser policies."));
+const MUSIC_TIME_KEY = "bgMusicTime";
+const MUSIC_PLAYING_KEY = "bgMusicPlaying";
+
+// Restore saved playback position
+const savedTime = localStorage.getItem(MUSIC_TIME_KEY);
+if (savedTime !== null) {
+  music.currentTime = parseFloat(savedTime);
+}
+
+// Figure out if it *should* be playing (default: yes, on first ever visit)
+const wasPlaying = localStorage.getItem(MUSIC_PLAYING_KEY);
+const shouldPlay = wasPlaying === null ? true : wasPlaying === "true";
+
+function tryPlayMusic() {
+  music.play()
+    .then(() => {
+      localStorage.setItem(MUSIC_PLAYING_KEY, "true");
+    })
+    .catch(() => {
+      // Autoplay blocked — wait for first user interaction, then resume
+      localStorage.setItem(MUSIC_PLAYING_KEY, "false");
+      const resumeOnInteraction = () => {
+        music.play().then(() => {
+          localStorage.setItem(MUSIC_PLAYING_KEY, "true");
+        }).catch(() => {});
+        document.removeEventListener("click", resumeOnInteraction);
+        document.removeEventListener("keydown", resumeOnInteraction);
+        document.removeEventListener("touchstart", resumeOnInteraction);
+      };
+      document.addEventListener("click", resumeOnInteraction, { once: true });
+      document.addEventListener("keydown", resumeOnInteraction, { once: true });
+      document.addEventListener("touchstart", resumeOnInteraction, { once: true });
+    });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  if (shouldPlay) tryPlayMusic();
 });
+
+// Save current time continuously while playing (every ~2s, cheap on perf)
+setInterval(() => {
+  if (!music.paused) {
+    localStorage.setItem(MUSIC_TIME_KEY, music.currentTime);
+  }
+}, 2000);
+
+// Save final state right before the page unloads/reloads
+window.addEventListener("beforeunload", () => {
+  localStorage.setItem(MUSIC_TIME_KEY, music.currentTime);
+  localStorage.setItem(MUSIC_PLAYING_KEY, (!music.paused).toString());
+});
+
+// Keep saved state in sync if the user pauses/plays manually (e.g. via devtools or future controls)
+music.addEventListener("pause", () => localStorage.setItem(MUSIC_PLAYING_KEY, "false"));
+music.addEventListener("play", () => localStorage.setItem(MUSIC_PLAYING_KEY, "true"));
 
 /*  DYNAMIC GREETING */
 
