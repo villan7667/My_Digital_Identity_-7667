@@ -181,11 +181,9 @@ function tryPlayMusic() {
   music.play()
     .then(() => {
       safeSet(MUSIC_PLAYING_KEY, "true");
-      debugLog("initial muted autoplay: OK");
     })
     .catch((err) => {
       console.warn("Muted autoplay was blocked too:", err);
-      debugLog("initial muted autoplay FAILED: " + err.name + " - " + err.message);
       safeSet(MUSIC_PLAYING_KEY, "false");
     });
 }
@@ -196,7 +194,6 @@ function unmuteOnFirstInteraction() {
   if (unlocked) return;
 
   music.muted = false;
-  debugLog("tap detected, unmuting + play()");
   music.play()
     .then(() => {
       unlocked = true; // only lock out future attempts once it actually works
@@ -204,11 +201,9 @@ function unmuteOnFirstInteraction() {
       document.removeEventListener("touchend", unmuteOnFirstInteraction);
       document.removeEventListener("keydown", unmuteOnFirstInteraction);
       safeSet(MUSIC_PLAYING_KEY, "true");
-      debugLog("play() resolved OK, sound should be audible");
     })
     .catch((err) => {
       // don't lock — leave listeners active so the NEXT real tap can try again
-      debugLog("play() FAILED: " + err.name + " - " + err.message);
       console.warn("Play on interaction failed:", err);
     });
 }
@@ -225,24 +220,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.addEventListener("touchend", unmuteOnFirstInteraction);
   document.addEventListener("keydown", unmuteOnFirstInteraction);
 });
-
-// ---------- TEMPORARY ON-SCREEN DEBUG PANEL ----------
-// Shows live audio state on the phone itself (no devtools needed).
-// Remove this whole block once everything is confirmed working.
-const debugBox = document.createElement("div");
-debugBox.style.cssText = "position:fixed;bottom:0;left:0;right:0;z-index:99999;" +
-  "background:rgba(0,0,0,0.85);color:#0f5;font:11px monospace;padding:6px 8px;" +
-  "max-height:35vh;overflow-y:auto;white-space:pre-wrap;pointer-events:none;";
-document.body.appendChild(debugBox);
-function debugLog(msg) {
-  const line = document.createElement("div");
-  line.textContent = new Date().toLocaleTimeString() + " — " + msg;
-  debugBox.appendChild(line);
-  debugBox.scrollTop = debugBox.scrollHeight;
-}
-["loadstart","loadedmetadata","canplay","canplaythrough","play","pause","waiting","stalled","error","suspend"]
-  .forEach(evt => music.addEventListener(evt, () => debugLog("event: " + evt + " | readyState=" + music.readyState + " | muted=" + music.muted + " | paused=" + music.paused)));
-// ---------- END DEBUG PANEL ----------
 
 // Save current time periodically while playing
 setInterval(() => {
@@ -284,6 +261,3 @@ const updateGreeting = () => {
 // Call immediately and update every minute
 updateGreeting();
 setInterval(updateGreeting, 60000);
-
-
-
