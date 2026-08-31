@@ -181,31 +181,33 @@ function tryPlayMusic() {
   music.play()
     .then(() => {
       safeSet(MUSIC_PLAYING_KEY, "true");
+      debugLog("initial muted autoplay: OK");
     })
     .catch((err) => {
       console.warn("Muted autoplay was blocked too:", err);
+      debugLog("initial muted autoplay FAILED: " + err.name + " - " + err.message);
       safeSet(MUSIC_PLAYING_KEY, "false");
     });
 }
 
-let unlocked = false; // guards against touchstart + click both firing for one tap
+let unlocked = false; // prevents re-running after a SUCCESSFUL unlock only
 
 function unmuteOnFirstInteraction() {
   if (unlocked) return;
-  unlocked = true;
-
-  document.removeEventListener("click", unmuteOnFirstInteraction);
-  document.removeEventListener("touchstart", unmuteOnFirstInteraction);
-  document.removeEventListener("keydown", unmuteOnFirstInteraction);
 
   music.muted = false;
   debugLog("tap detected, unmuting + play()");
   music.play()
     .then(() => {
+      unlocked = true; // only lock out future attempts once it actually works
+      document.removeEventListener("click", unmuteOnFirstInteraction);
+      document.removeEventListener("touchend", unmuteOnFirstInteraction);
+      document.removeEventListener("keydown", unmuteOnFirstInteraction);
       safeSet(MUSIC_PLAYING_KEY, "true");
       debugLog("play() resolved OK, sound should be audible");
     })
     .catch((err) => {
+      // don't lock — leave listeners active so the NEXT real tap can try again
       debugLog("play() FAILED: " + err.name + " - " + err.message);
       console.warn("Play on interaction failed:", err);
     });
@@ -216,9 +218,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // so start it immediately. Real sound turns on the moment the user
   // taps/clicks/types anywhere on the page.
   tryPlayMusic();
-  document.addEventListener("click", unmuteOnFirstInteraction, { once: true });
-  document.addEventListener("touchstart", unmuteOnFirstInteraction, { once: true });
-  document.addEventListener("keydown", unmuteOnFirstInteraction, { once: true });
+  // NOTE: touchstart deliberately excluded — Chrome on Android does not
+  // treat it as a valid gesture for unlocking media playback. Only
+  // click / touchend / keydown are reliably honored.
+  document.addEventListener("click", unmuteOnFirstInteraction);
+  document.addEventListener("touchend", unmuteOnFirstInteraction);
+  document.addEventListener("keydown", unmuteOnFirstInteraction);
 });
 
 // ---------- TEMPORARY ON-SCREEN DEBUG PANEL ----------
@@ -279,3 +284,6 @@ const updateGreeting = () => {
 // Call immediately and update every minute
 updateGreeting();
 setInterval(updateGreeting, 60000);
+
+
+
